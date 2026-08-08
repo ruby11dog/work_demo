@@ -1,14 +1,79 @@
 [
   {
+    "group": "端到端全双工",
     "name": "端到端全双工demo - example1",
     "file": "media/端到端example1.mp4",
     "type": "video",
     "description": "端到端全双工演示视频 1"
   },
   {
+    "group": "端到端全双工",
     "name": "端到端全双工demo - example2",
     "file": "media/端到端example2.mp4",
     "type": "video",
     "description": "端到端全双工演示视频 2"
+  },
+  {
+    "group": "cosyvoice2韵律优化",
+    "name": "不带韵律停顿",
+    "file": "media/case_pause_ori.wav",
+    "type": "audio",
+    "description": "成绩人周雷的证件号是，二一零七二六一九九一零八二四零七一一。"
+  },
+  {
+    "group": "cosyvoice2韵律优化",
+    "name": "带韵律停顿",
+    "file": "media/case_pause.wav",
+    "type": "audio",
+    "description": "成绩人周雷的证件号是，二一零七二六[pause]一九九一[pause]零八二四[pause]零七一一。"
+  },
+  {
+    "group": "cosyvoice2韵律优化",
+    "name": "韵律节奏 - 1",
+    "file": "media/rumu_1 (1).wav",
+    "type": "audio",
+    "description": "呃[prolong]，但是超时出签就是要超过这八个工作日，我才能去判。也就是说，您这个[prolong]从三号开始计算，使馆受理，他这边审核完成了嘛，那[prolong]使馆就要受理了。"
+  },
+  {
+    "group": "cosyvoice2韵律优化",
+    "name": "韵律节奏 - 2",
+    "file": "media/shiyi_1 (1).wav",
+    "type": "audio",
+    "description": "明天[prolong]我先让同事给您跟一下，看看这护照能不能给寄回。然后[prolong]如果他寄回了，那这边老老实实[pause]，明天下午这边上班去给您处理退赔。"
+  },
+  {
+    "group": "cv3 flow加速",
+    "name": "底模flow 10 step",
+    "file": "media/case_flow_10step_ori.wav",
+    "type": "audio",
+    "description": "底模 flow 10 step 生成的音频"
+  },
+  {
+    "group": "cv3 flow加速",
+    "name": "优化flow 3 step",
+    "file": "media/case_flow_3step_refine.wav",
+    "type": "audio",
+    "description": "优化 flow 3 step 生成的音频"
+  },
+  {
+    "group": "对话TTS",
+    "name": "对话TTS",
+    "file": "media/case_dial_tts.wav",
+    "type": "audio",
+    "description": "对话场景 TTS 生成音频"
+  },
+  {
+    "group": "语音编辑",
+    "name": "原始音频",
+    "file": "media/jiusi_ori.wav",
+    "type": "audio",
+    "description": "<span class=\"hl-del\">酷狗</span>现在都这么扣费啦，那天我还<span class=\"hl-del\">说呢</span>，我说我还有几天会员到期了，我不知道我还<span class=\"hl-del\">续不续呢</span>。"
+  },
+  {
+    "group": "语音编辑",
+    "name": "编辑后音频",
+    "file": "media/jiusi_edit_long_dynamic.wav",
+    "type": "audio",
+    "description": "<span class=\"hl-add\">腾讯体育</span>现在都这么扣费啦，那天我还<span class=\"hl-add\">上节目接受了采访</span>，我说我还有几天会员到期了，我不知道<span class=\"hl-add\">这是不是一件好事儿，这是一件好事儿呀</span>。"
   }
 ]

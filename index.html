@@ -186,6 +186,47 @@
       word-break: break-all;
     }
 
+    /* 韵律标签高亮 */
+    .tag-pause {
+      display: inline-block;
+      background: #fff3cd;
+      color: #856404;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    .tag-prolong {
+      display: inline-block;
+      background: #d1ecf1;
+      color: #0c5460;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    /* 语音编辑差异高亮 */
+    .hl-del {
+      background: #fdd;
+      color: #c00;
+      padding: 1px 4px;
+      border-radius: 3px;
+      text-decoration: line-through;
+      font-weight: 600;
+    }
+
+    .hl-add {
+      background: #d4edda;
+      color: #155724;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
     /* 空状态 */
     .empty-state {
       text-align: center;
@@ -195,6 +236,31 @@
 
     .empty-state .icon { font-size: 3rem; margin-bottom: 16px; }
     .empty-state p { font-size: 1rem; }
+
+    /* 分组标题 */
+    .section-header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      margin-bottom: -4px;
+    }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      white-space: nowrap;
+    }
+
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, #d1d5db, transparent);
+      border-radius: 1px;
+    }
 
     /* 加载状态 */
     .loading {
@@ -246,8 +312,7 @@
 <body>
 
 <header>
-  <h1>🎬 工作 Demo 展示</h1>
-  <p>视频 · 音频 · 项目演示</p>
+  <h1>工作 Demo 展示</h1>
 </header>
 
 <div class="container">
@@ -297,7 +362,57 @@
     return map[ext] || (type === 'video' ? 'video/mp4' : 'audio/mpeg');
   }
 
-  // 渲染卡片
+  // 高亮韵律标签
+  function highlightTags(text) {
+    return text
+      .replace(/\[pause\]/g, '<span class="tag-pause">[pause]</span>')
+      .replace(/\[prolong\]/g, '<span class="tag-prolong">[prolong]</span>');
+  }
+
+  // 渲染单个卡片
+  function renderCard(item) {
+    const mime = getMimeType(item.file, item.type);
+    const ext = getExt(item.file).toUpperCase();
+    const badgeClass = item.type === 'video' ? 'badge-video' : 'badge-audio';
+    const badgeLabel = item.type === 'video' ? '🎥 视频' : '🎵 音频';
+
+    let playerHTML = '';
+    if (item.type === 'video') {
+      playerHTML = `
+        <div class="card-player">
+          <video controls preload="metadata" playsinline>
+            <source src="${item.file}" type="${mime}" />
+            您的浏览器不支持视频播放
+          </video>
+        </div>`;
+    } else {
+      playerHTML = `
+        <div class="audio-cover">
+          <span class="icon">🎵</span>
+          <div class="wave-bars">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div style="padding: 12px 16px 4px; background:#f8f9fa;">
+          <audio controls preload="metadata" style="width:100%">
+            <source src="${item.file}" type="${mime}" />
+            您的浏览器不支持音频播放
+          </audio>
+        </div>`;
+    }
+
+    return `
+      <div class="card" data-type="${item.type}">
+        ${playerHTML}
+        <div class="card-body">
+          <span class="card-badge ${badgeClass}">${badgeLabel} · ${ext}</span>
+          <div class="card-title">${item.name}</div>
+          ${item.description ? `<div class="card-desc">${highlightTags(item.description)}</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  // 按分组渲染
   function renderItems(items) {
     if (!items.length) {
       grid.innerHTML = `
@@ -308,48 +423,28 @@
       return;
     }
 
-    grid.innerHTML = items.map(item => {
-      const mime = getMimeType(item.file, item.type);
-      const ext = getExt(item.file).toUpperCase();
-      const badgeClass = item.type === 'video' ? 'badge-video' : 'badge-audio';
-      const badgeLabel = item.type === 'video' ? '🎥 视频' : '🎵 音频';
-
-      let playerHTML = '';
-      if (item.type === 'video') {
-        playerHTML = `
-          <div class="card-player">
-            <video controls preload="metadata" playsinline>
-              <source src="${item.file}" type="${mime}" />
-              您的浏览器不支持视频播放
-            </video>
-          </div>`;
-      } else {
-        playerHTML = `
-          <div class="audio-cover">
-            <span class="icon">🎵</span>
-            <div class="wave-bars">
-              <span></span><span></span><span></span><span></span><span></span>
-            </div>
-          </div>
-          <div style="padding: 12px 16px 4px; background:#f8f9fa;">
-            <audio controls preload="metadata" style="width:100%">
-              <source src="${item.file}" type="${mime}" />
-              您的浏览器不支持音频播放
-            </audio>
-          </div>`;
+    // 按 group 字段分组（保持顺序）
+    const groups = [];
+    const groupMap = {};
+    items.forEach(item => {
+      const g = item.group || '';
+      if (!groupMap[g]) {
+        const group = { name: g, items: [] };
+        groupMap[g] = group;
+        groups.push(group);
       }
+      groupMap[g].items.push(item);
+    });
 
-      return `
-        <div class="card" data-type="${item.type}">
-          ${playerHTML}
-          <div class="card-body">
-            <span class="card-badge ${badgeClass}">${badgeLabel} · ${ext}</span>
-            <div class="card-title">${item.name}</div>
-            ${item.description ? `<div class="card-desc">${item.description}</div>` : ''}
-            <div class="card-file">📁 ${item.file}</div>
-          </div>
-        </div>`;
-    }).join('');
+    let html = '';
+    groups.forEach(g => {
+      if (g.name) {
+        html += `<div class="section-header"><h2>${g.name}</h2></div>`;
+      }
+      html += g.items.map(renderCard).join('');
+    });
+
+    grid.innerHTML = html;
   }
 
   // 过滤
