@@ -1,0 +1,14 @@
+[
+  {
+    "name": "端到端全双工demo - example1",
+    "file": "media/端到端example1.mp4",
+    "type": "video",
+    "description": "端到端全双工演示视频 1"
+  },
+  {
+    "name": "端到端全双工demo - example2",
+    "file": "media/端到端example2.mp4",
+    "type": "video",
+    "description": "端到端全双工演示视频 2"
+  }
+]

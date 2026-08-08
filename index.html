@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工作 Demo 展示</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      padding: 48px 24px 36px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: #a8b2d1;
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: -30px auto 60px;
+      padding: 0 20px;
+    }
+
+    /* 过滤按钮 */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 22px;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #fff;
+      color: #555;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { background: #e8eaf6; }
+
+    .filter-btn.active {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    /* 卡片网格 */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    }
+
+    .card-player {
+      width: 100%;
+      background: #0d0d1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .card-player video {
+      width: 100%;
+      display: block;
+      max-height: 260px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .card-player audio {
+      width: 100%;
+      outline: none;
+    }
+
+    /* 音频卡片封面 */
+    .audio-cover {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .audio-cover .icon {
+      font-size: 2.4rem;
+    }
+
+    .audio-cover .wave-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 36px;
+    }
+
+    .audio-cover .wave-bars span {
+      display: block;
+      width: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.7);
+      animation: wave 1.2s ease-in-out infinite;
+    }
+
+    .audio-cover .wave-bars span:nth-child(1) { height: 40%; animation-delay: 0s; }
+    .audio-cover .wave-bars span:nth-child(2) { height: 70%; animation-delay: 0.15s; }
+    .audio-cover .wave-bars span:nth-child(3) { height: 100%; animation-delay: 0.3s; }
+    .audio-cover .wave-bars span:nth-child(4) { height: 60%; animation-delay: 0.45s; }
+    .audio-cover .wave-bars span:nth-child(5) { height: 85%; animation-delay: 0.6s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1); }
+    }
+
+    .card-body {
+      padding: 18px 20px 20px;
+    }
+
+    .card-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .badge-video { background: #e3f2fd; color: #1565c0; }
+    .badge-audio { background: #f3e5f5; color: #7b1fa2; }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .card-file {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      word-break: break-all;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-state p { font-size: 1rem; }
+
+    /* 加载状态 */
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: #9ca3af;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #1a1a2e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 错误状态 */
+    .error-banner {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .error-banner code {
+      background: rgba(0,0,0,0.07);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎬 工作 Demo 展示</h1>
+  <p>视频 · 音频 · 项目演示</p>
+</header>
+
+<div class="container">
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="video">🎥 视频</button>
+    <button class="filter-btn" data-filter="audio">🎵 音频</button>
+  </div>
+
+  <div id="errorArea"></div>
+  <div class="grid" id="mediaGrid">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>正在加载媒体列表…</p>
+    </div>
+  </div>
+</div>
+
+<footer>© Work Demo Showcase</footer>
+
+<script>
+  let allItems = [];
+  let currentFilter = 'all';
+
+  const grid = document.getElementById('mediaGrid');
+  const errorArea = document.getElementById('errorArea');
+  const filterBar = document.getElementById('filterBar');
+
+  // 获取文件扩展名
+  function getExt(filename) {
+    return filename.split('.').pop().toLowerCase();
+  }
+
+  // 根据扩展名获取 MIME
+  function getMimeType(file, type) {
+    const ext = getExt(file);
+    const map = {
+      mp4: 'video/mp4',
+      webm: 'video/webm',
+      ogg: 'video/ogg',
+      mp3: 'audio/mpeg',
+      wav: 'audio/wav',
+      ogg: 'audio/ogg',
+      flac: 'audio/flac',
+      aac: 'audio/aac',
+    };
+    return map[ext] || (type === 'video' ? 'video/mp4' : 'audio/mpeg');
+  }
+
+  // 渲染卡片
+  function renderItems(items) {
+    if (!items.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="icon">📂</div>
+          <p>暂无媒体文件，请将文件放入 <code>media/</code> 目录并更新 <code>media-list.json</code></p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = items.map(item => {
+      const mime = getMimeType(item.file, item.type);
+      const ext = getExt(item.file).toUpperCase();
+      const badgeClass = item.type === 'video' ? 'badge-video' : 'badge-audio';
+      const badgeLabel = item.type === 'video' ? '🎥 视频' : '🎵 音频';
+
+      let playerHTML = '';
+      if (item.type === 'video') {
+        playerHTML = `
+          <div class="card-player">
+            <video controls preload="metadata" playsinline>
+              <source src="${item.file}" type="${mime}" />
+              您的浏览器不支持视频播放
+            </video>
+          </div>`;
+      } else {
+        playerHTML = `
+          <div class="audio-cover">
+            <span class="icon">🎵</span>
+            <div class="wave-bars">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <div style="padding: 12px 16px 4px; background:#f8f9fa;">
+            <audio controls preload="metadata" style="width:100%">
+              <source src="${item.file}" type="${mime}" />
+              您的浏览器不支持音频播放
+            </audio>
+          </div>`;
+      }
+
+      return `
+        <div class="card" data-type="${item.type}">
+          ${playerHTML}
+          <div class="card-body">
+            <span class="card-badge ${badgeClass}">${badgeLabel} · ${ext}</span>
+            <div class="card-title">${item.name}</div>
+            ${item.description ? `<div class="card-desc">${item.description}</div>` : ''}
+            <div class="card-file">📁 ${item.file}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // 过滤
+  function applyFilter(filter) {
+    currentFilter = filter;
+    const filtered = filter === 'all'
+      ? allItems
+      : allItems.filter(i => i.type === filter);
+    renderItems(filtered);
+  }
+
+  // 过滤按钮点击
+  filterBar.addEventListener('click', e => {
+    if (!e.target.classList.contains('filter-btn')) return;
+    filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    applyFilter(e.target.dataset.filter);
+  });
+
+  // 加载媒体列表
+  fetch('media-list.json')
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(data => {
+      allItems = Array.isArray(data) ? data : [];
+      applyFilter(currentFilter);
+    })
+    .catch(err => {
+      errorArea.innerHTML = `
+        <div class="error-banner">
+          ⚠️ 无法加载 <code>media-list.json</code>：${err.message}<br/>
+          请确保该文件存在，并且通过本地服务器访问（而非直接打开 HTML 文件）。<br/>
+          可使用 <code>python3 -m http.server 8080</code> 启动本地服务器。
+        </div>`;
+      grid.innerHTML = '';
+    });
+</script>
+
+</body>
+</html>
