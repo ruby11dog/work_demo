@@ -18,14 +18,14 @@
     "name": "不带韵律停顿",
     "file": "media/case_pause_ori.wav",
     "type": "audio",
-    "description": "成绩人周雷的证件号是，二一零七二六一九九一零八二四零七一一。"
+    "description": "乘机人周雷的证件号是，二一零七二六一九九一零八二四零七一一。"
   },
   {
     "group": "cosyvoice2韵律优化",
     "name": "带韵律停顿",
     "file": "media/case_pause.wav",
     "type": "audio",
-    "description": "成绩人周雷的证件号是，二一零七二六[pause]一九九一[pause]零八二四[pause]零七一一。"
+    "description": "乘机人周雷的证件号是，二一零七二六[pause]一九九一[pause]零八二四[pause]零七一一。"
   },
   {
     "group": "cosyvoice2韵律优化",
