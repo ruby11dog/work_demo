@@ -40,11 +40,17 @@
     }
 
     /* 过滤按钮 */
+    /* 导航索引 */
     .filter-bar {
       display: flex;
       gap: 10px;
       margin-bottom: 28px;
       flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #f0f2f5;
+      padding: 12px 0;
     }
 
     .filter-btn {
@@ -317,9 +323,7 @@
 
 <div class="container">
   <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" data-filter="all">全部</button>
-    <button class="filter-btn" data-filter="video">🎥 视频</button>
-    <button class="filter-btn" data-filter="audio">🎵 音频</button>
+    <button class="filter-btn active" data-group="all">全部</button>
   </div>
 
   <div id="errorArea"></div>
@@ -442,7 +446,7 @@
     let html = '';
     groups.forEach(g => {
       if (g.name) {
-        html += `<div class="section-header"><h2>${g.name}</h2></div>`;
+        html += `<div class="section-header" id="section-${g.name.replace(/\s+/g, '-')}"><h2>${g.name}</h2></div>`;
       }
       html += g.items.map(renderCard).join('');
     });
@@ -450,21 +454,41 @@
     grid.innerHTML = html;
   }
 
-  // 过滤
-  function applyFilter(filter) {
-    currentFilter = filter;
-    const filtered = filter === 'all'
-      ? allItems
-      : allItems.filter(i => i.type === filter);
-    renderItems(filtered);
+  // 动态生成分组导航按钮
+  function buildNavButtons(items) {
+    const groupNames = [];
+    const seen = {};
+    items.forEach(item => {
+      const g = item.group || '';
+      if (g && !seen[g]) {
+        seen[g] = true;
+        groupNames.push(g);
+      }
+    });
+
+    filterBar.innerHTML = `<button class="filter-btn active" data-group="all">\u5168\u90e8</button>` +
+      groupNames.map(name =>
+        `<button class="filter-btn" data-group="${name}">${name}</button>`
+      ).join('');
   }
 
-  // 过滤按钮点击
+  // 导航按钮点击 -> 滚动到对应分组
   filterBar.addEventListener('click', e => {
     if (!e.target.classList.contains('filter-btn')) return;
     filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
-    applyFilter(e.target.dataset.filter);
+
+    const group = e.target.dataset.group;
+    if (group === 'all') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const target = document.getElementById('section-' + group.replace(/\s+/g, '-'));
+      if (target) {
+        const offset = filterBar.offsetHeight + 16;
+        const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
   });
 
   // 加载媒体列表
@@ -475,7 +499,8 @@
     })
     .then(data => {
       allItems = Array.isArray(data) ? data : [];
-      applyFilter(currentFilter);
+      buildNavButtons(allItems);
+      renderItems(allItems);
     })
     .catch(err => {
       errorArea.innerHTML = `
