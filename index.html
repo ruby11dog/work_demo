@@ -33,6 +33,22 @@
       font-size: 1rem;
     }
 
+    .visitor-counter {
+      margin-top: 14px;
+      display: inline-block;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 6px 18px;
+      color: #a8b2d1;
+      font-size: 0.88rem;
+    }
+
+    .visitor-counter strong {
+      color: #fff;
+      font-size: 1rem;
+    }
+
     .container {
       max-width: 1100px;
       margin: -30px auto 60px;
@@ -319,6 +335,9 @@
 
 <header>
   <h1>工作 Demo 展示</h1>
+  <div class="visitor-counter" id="visitorCounter" style="display:none;">
+    <span>👥 访客人数：<strong id="visitorCount">加载中...</strong></span>
+  </div>
 </header>
 
 <div class="container">
@@ -341,6 +360,46 @@
 </footer>
 
 <script>
+  // 访客计数
+  const VISITOR_KEY = 'work_demo_visited';
+  const ADMIN_SECRET = 'myworkdemo2026';  // 管理员密钥，只有带 ?view=密钥 访问才显示计数
+  const counterEl = document.getElementById('visitorCount');
+  const counterBox = document.getElementById('visitorCounter');
+  const ABACUS_NS = 'ruby11dog-work-demo';
+  const ABACUS_KEY = 'visitors';
+
+  // 判断是否为管理员访问（带密钥参数）
+  function isAdmin() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('view') === ADMIN_SECRET;
+  }
+
+  async function loadVisitorCount() {
+    try {
+      const alreadyVisited = localStorage.getItem(VISITOR_KEY);
+      let url;
+      if (!alreadyVisited) {
+        url = `https://abacus.jasoncameron.dev/hit/${ABACUS_NS}/${ABACUS_KEY}`;
+        localStorage.setItem(VISITOR_KEY, Date.now().toString());
+      } else {
+        url = `https://abacus.jasoncameron.dev/get/${ABACUS_NS}/${ABACUS_KEY}`;
+      }
+      const res = await fetch(url);
+      const data = await res.json();
+      // 仅管理员可见计数
+      if (isAdmin()) {
+        counterEl.textContent = data.value ?? 0;
+        counterBox.style.display = 'inline-block';
+      }
+    } catch (e) {
+      if (isAdmin()) {
+        counterEl.textContent = '—';
+        counterBox.style.display = 'inline-block';
+      }
+    }
+  }
+  loadVisitorCount();
+
   let allItems = [];
   let currentFilter = 'all';
 
